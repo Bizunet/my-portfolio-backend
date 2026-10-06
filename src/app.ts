@@ -36,8 +36,31 @@ app.post("/api/contact", async (req, res) => {
       from: `"Portfolio Website" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_TO,
       replyTo: email,
-      subject: service ? `Portfolio inquiry: ${service}` : "Portfolio inquiry",
-      text: `Name: ${name}\nEmail: ${email}\nService: ${service || "Not specified"}\n\nMessage:\n${message}`,
+      subject: service
+        ? `Portfolio inquiry: ${service} - ${name}`
+        : `Portfolio inquiry from ${name}`,
+      text: [
+        "New portfolio message",
+        "",
+        `Sender Name: ${name}`,
+        `Sender Email: ${email}`,
+        `Service Needed: ${service || "Not specified"}`,
+        "",
+        "Message:",
+        message,
+      ].join("\n"),
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #222;">
+          <h2 style="margin-bottom: 12px; color: #111;">New portfolio message</h2>
+          <p><strong>Sender Name:</strong> ${name}</p>
+          <p><strong>Sender Email:</strong> ${email}</p>
+          <p><strong>Service Needed:</strong> ${service || "Not specified"}</p>
+          <div style="margin-top: 18px; border-top: 1px solid #ddd; padding-top: 12px;">
+            <strong>Message:</strong>
+            <p style="margin-top: 8px; white-space: pre-wrap;">${message}</p>
+          </div>
+        </div>
+      `,
     });
 
     res
