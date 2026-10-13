@@ -16,10 +16,20 @@ app.use("/api/projects", projectsRouter);
 
 app.post("/api/contact", async (req, res) => {
   const { name, email, message, service } = req.body;
+  const replyEmail = typeof email === "string" ? email.trim() : "";
 
-  if (!name || !email || !message) {
+  if (!name || !replyEmail || !message) {
     return res.status(400).json({
       error: "Name, email, and message are required.",
+    });
+  }
+
+  if (
+    replyEmail.length > 254 ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyEmail)
+  ) {
+    return res.status(400).json({
+      error: "Please provide a valid email address.",
     });
   }
 
@@ -35,7 +45,7 @@ app.post("/api/contact", async (req, res) => {
     await transporter.sendMail({
       from: `"Portfolio Website" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_TO,
-      replyTo: email,
+      replyTo: replyEmail,
       subject: service
         ? `Portfolio inquiry: ${service} - ${name}`
         : `Portfolio inquiry from ${name}`,
@@ -43,7 +53,7 @@ app.post("/api/contact", async (req, res) => {
         "New portfolio message",
         "",
         `Sender Name: ${name}`,
-        `Sender Email: ${email}`,
+        `Sender Email: ${replyEmail}`,
         `Service Needed: ${service || "Not specified"}`,
         "",
         "Message:",
@@ -53,7 +63,7 @@ app.post("/api/contact", async (req, res) => {
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #222;">
           <h2 style="margin-bottom: 12px; color: #111;">New portfolio message</h2>
           <p><strong>Sender Name:</strong> ${name}</p>
-          <p><strong>Sender Email:</strong> ${email}</p>
+          <p><strong>Sender Email:</strong> ${replyEmail}</p>
           <p><strong>Service Needed:</strong> ${service || "Not specified"}</p>
           <div style="margin-top: 18px; border-top: 1px solid #ddd; padding-top: 12px;">
             <strong>Message:</strong>
